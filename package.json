@@ -18,6 +18,7 @@
     "foundry:deploy": "yarn workspace @sh/foundry deploy",
     "foundry:flatten": "yarn workspace @sh/foundry flatten",
     "foundry:format": "yarn workspace @sh/foundry format",
+    "foundry:hcs": "yarn workspace @sh/foundry hcs",
     "foundry:lint": "yarn workspace @sh/foundry lint",
     "foundry:lint-staged": "yarn workspace @sh/foundry lint-staged",
     "foundry:smoke": "yarn workspace @sh/foundry smoke",

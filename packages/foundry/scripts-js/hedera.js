@@ -204,6 +204,8 @@ export const contractLink = (network, address) =>
   `${NETWORKS[network].hashscan}/contract/${address}`;
 export const tokenLink = (network, tokenAddress) =>
   `${NETWORKS[network].hashscan}/token/${entityIdFromLongZero(tokenAddress)}`;
+export const topicLink = (network, topicId) =>
+  `${NETWORKS[network].hashscan}/topic/${topicId}`;
 export const mirrorResultLink = (network, hash) =>
   `${NETWORKS[network].mirror}/api/v1/contracts/results/${hash}`;
 

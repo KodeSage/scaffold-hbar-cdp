@@ -9,6 +9,7 @@ export const hashscanToken = (chainId: HederaChainId, token: Address) =>
   `${HASHSCAN[chainId]}/token/${entityIdFromLongZero(token)}`;
 export const hashscanContract = (chainId: HederaChainId, address: Address) =>
   `${HASHSCAN[chainId]}/contract/${address}`;
+export const hashscanTopic = (chainId: HederaChainId, topicId: string) => `${HASHSCAN[chainId]}/topic/${topicId}`;
 
 async function getJson<T>(url: string): Promise<T | null> {
   const response = await fetch(url, { headers: { accept: "application/json" } });
@@ -101,4 +102,56 @@ export async function getVaultActivity(chainId: HederaChainId, engine: Address, 
     }
   }
   return items.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+}
+
+/** Matches MESSAGE_VERSION in packages/foundry/scripts-js/hcsLog.js. */
+const HCS_MESSAGE_VERSION = 1;
+
+export type HcsLogEntry = {
+  sequenceNumber: number;
+  /** HCS consensus timestamp, seconds since epoch. */
+  timestamp: number;
+  /** An engine event name, or "OracleStatus". */
+  type: string;
+  /** uint256 values arrive as decimal strings in their on-chain units (tinybars, stable units, priceE18). */
+  args: Record<string, string | boolean | null>;
+  /** Transaction that emitted the engine event; absent for oracle status changes. */
+  transactionHash?: Hex;
+};
+
+export type MirrorTopicMessage = { sequence_number: number; consensus_timestamp: string; message: string };
+
+/** Decodes one relayer message (base64 JSON). Returns null for anything the relayer did not write. */
+export function parseHcsMessage(raw: MirrorTopicMessage): HcsLogEntry | null {
+  try {
+    const bytes = Uint8Array.from(atob(raw.message), char => char.charCodeAt(0));
+    const body = JSON.parse(new TextDecoder().decode(bytes));
+    if (body?.v !== HCS_MESSAGE_VERSION || typeof body.type !== "string") return null;
+    return {
+      sequenceNumber: raw.sequence_number,
+      timestamp: Number(raw.consensus_timestamp.split(".")[0]),
+      type: body.type,
+      args: body.args ?? {},
+      transactionHash: body.tx,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Latest messages on the protocol's HCS topic, newest first. `matchesEngine` is false when the topic memo
+ * names a different engine, e.g. NEXT_PUBLIC_HCS_TOPIC_ID left over from a previous deployment.
+ */
+export async function getHcsLog(chainId: HederaChainId, topicId: string, engine: Address, limit = 20) {
+  const base = MIRROR_NODE[chainId];
+  const [topic, page] = await Promise.all([
+    getJson<{ memo: string }>(`${base}/api/v1/topics/${topicId}`),
+    getJson<{ messages: MirrorTopicMessage[] }>(`${base}/api/v1/topics/${topicId}/messages?order=desc&limit=${limit}`),
+  ]);
+  if (!topic) throw new Error(`HCS topic ${topicId} not found`);
+  return {
+    matchesEngine: topic.memo.toLowerCase().includes(engine.toLowerCase()),
+    entries: (page?.messages ?? []).map(parseHcsMessage).filter((entry): entry is HcsLogEntry => entry !== null),
+  };
 }

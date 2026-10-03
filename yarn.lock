@@ -1204,6 +1204,37 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hashgraph/sdk@npm:~2.81.0":
+  version: 2.81.0
+  resolution: "@hashgraph/sdk@npm:2.81.0"
+  dependencies:
+    "@ethersproject/abi": 5.8.0
+    "@ethersproject/bignumber": 5.8.0
+    "@ethersproject/bytes": 5.8.0
+    "@ethersproject/rlp": 5.8.0
+    "@grpc/grpc-js": 1.12.6
+    "@hiero-ledger/cryptography": "npm:@hashgraph/cryptography@1.17.0"
+    "@hiero-ledger/proto": "npm:@hashgraph/proto@2.26.0-beta.3"
+    ansi-regex: 6.2.2
+    ansi-styles: 6.2.3
+    bignumber.js: 9.1.1
+    bn.js: 5.2.3
+    crypto-js: 4.2.0
+    debug: 4.4.1
+    js-base64: 3.7.4
+    long: 5.3.1
+    pino: 10.1.0
+    pino-pretty: 13.0.0
+    protobufjs: 8.0.0
+    rfc4648: 1.5.3
+    strip-ansi: 7.1.2
+    utf8: 3.0.0
+  peerDependencies:
+    bn.js: 5.2.3
+  checksum: f0b44cea7bda587063cfbb96a9bcb9fb4778e3d49722ff3fa3b17e0991cd2acbdd4aae2163a823058fc8f86801a093b00cf8d3843f7ca8163d1f3a90b1ad004b
+  languageName: node
+  linkType: hard
+
 "@heroicons/react@npm:^2.1.5, @heroicons/react@npm:^2.2.0":
   version: 2.2.0
   resolution: "@heroicons/react@npm:2.2.0"
@@ -1240,6 +1271,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hiero-ledger/cryptography@npm:@hashgraph/cryptography@1.17.0":
+  version: 1.17.0
+  resolution: "@hashgraph/cryptography@npm:1.17.0"
+  dependencies:
+    "@noble/curves": 1.8.1
+    ansi-regex: 6.2.2
+    ansi-styles: 6.2.3
+    asn1js: 3.0.6
+    bignumber.js: 9.1.1
+    bn.js: 5.2.3
+    buffer: 6.0.3
+    crypto-js: 4.2.0
+    debug: 4.4.1
+    forge-light: 1.1.4
+    js-base64: 3.7.7
+    react-native-get-random-values: 2.0.0
+    spark-md5: 3.0.2
+    strip-ansi: 7.1.2
+    tweetnacl: 1.0.3
+    utf8: 3.0.0
+  peerDependenciesMeta:
+    expo-crypto:
+      optional: true
+  checksum: 57fca645db4ba097fd7c630978ec98ecd7adff321ad9508731dbc51e86009f2636eabc655c31f3a4b680511a07aabf74ba62af885a7acbd086f99996dce9f13b
+  languageName: node
+  linkType: hard
+
 "@hiero-ledger/proto@npm:2.26.0-beta.3":
   version: 2.26.0-beta.3
   resolution: "@hiero-ledger/proto@npm:2.26.0-beta.3"
@@ -1252,6 +1310,21 @@ __metadata:
     protobufjs: 7.5.4
     strip-ansi: 7.1.2
   checksum: b363751be78594bca4a27c6615e34ed0a68c20e0804f620b15eb3738b264b322bdf855c3b0cde6812d3faa86d798cec5e59c160ffab98f26ac59a0fe4b876803
+  languageName: node
+  linkType: hard
+
+"@hiero-ledger/proto@npm:@hashgraph/proto@2.26.0-beta.3":
+  version: 2.26.0-beta.3
+  resolution: "@hashgraph/proto@npm:2.26.0-beta.3"
+  dependencies:
+    long: 5.3.1
+  peerDependencies:
+    ansi-regex: 6.2.2
+    ansi-styles: 6.2.3
+    debug: 4.4.1
+    protobufjs: 7.5.4
+    strip-ansi: 7.1.2
+  checksum: 439f6410353f4479d9d0b01a954f0ce1f8b82da81744a4304d9a872d4f3fbc4acffb0aede5f56ac07d01c657616bc281f119dc158d9697d9152acddb3614f231
   languageName: node
   linkType: hard
 
@@ -2736,6 +2809,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sh/foundry@workspace:packages/foundry"
   dependencies:
+    "@hashgraph/sdk": ~2.81.0
     dotenv: ~16.3.1
     envfile: ~6.18.0
     ethers: ~5.7.1
@@ -5305,17 +5379,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bn.js@npm:5.2.3, bn.js@npm:^5.2.0, bn.js@npm:^5.2.1":
+  version: 5.2.3
+  resolution: "bn.js@npm:5.2.3"
+  checksum: b024fa4ab260670ca0d99f3ffee96a09ba9662f3ae28e01f4d54072bca945724cca1fac53588892c87a909ef8bc91367c442cadc35568d55999adbc221a6f012
+  languageName: node
+  linkType: hard
+
 "bn.js@npm:^4.11.9":
   version: 4.12.3
   resolution: "bn.js@npm:4.12.3"
   checksum: 0fb6455c6d56e3869589ad736cc2f5ed2b6229daa1af43e93bd373eb5e20bf0ae25b166087189bce9ba3b3f4d971e1b9a12ec6027e52eb182e5535e1494cadbb
-  languageName: node
-  linkType: hard
-
-"bn.js@npm:^5.2.0, bn.js@npm:^5.2.1":
-  version: 5.2.3
-  resolution: "bn.js@npm:5.2.3"
-  checksum: b024fa4ab260670ca0d99f3ffee96a09ba9662f3ae28e01f4d54072bca945724cca1fac53588892c87a909ef8bc91367c442cadc35568d55999adbc221a6f012
   languageName: node
   linkType: hard
 
@@ -9894,6 +9968,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"protobufjs@npm:8.0.0":
+  version: 8.0.0
+  resolution: "protobufjs@npm:8.0.0"
+  dependencies:
+    "@protobufjs/aspromise": ^1.1.2
+    "@protobufjs/base64": ^1.1.2
+    "@protobufjs/codegen": ^2.0.4
+    "@protobufjs/eventemitter": ^1.1.0
+    "@protobufjs/fetch": ^1.1.0
+    "@protobufjs/float": ^1.0.2
+    "@protobufjs/inquire": ^1.1.0
+    "@protobufjs/path": ^1.1.2
+    "@protobufjs/pool": ^1.1.0
+    "@protobufjs/utf8": ^1.1.0
+    "@types/node": ">=13.7.0"
+    long: ^5.0.0
+  checksum: c34ec06193de32f3b9c296c4b34cf1f609c9a598201212a4a65c423010713323902a7f5915ec44d1dfe09f92bd397441303a2c1470a4f9a5ff26247b03b99e15
+  languageName: node
+  linkType: hard
+
 "proxy-compare@npm:2.6.0":
   version: 2.6.0
   resolution: "proxy-compare@npm:2.6.0"
@@ -10056,6 +10150,17 @@ __metadata:
   peerDependencies:
     react-native: ">=0.56"
   checksum: 07729f70a007f7a3b8f98ebf687c1298ba288b87dd71d8ba385be6b5a377718b27b97547bbe1db6b225b83ee109dfce0b01721e6ed535d53892f3ac81e6bf975
+  languageName: node
+  linkType: hard
+
+"react-native-get-random-values@npm:2.0.0":
+  version: 2.0.0
+  resolution: "react-native-get-random-values@npm:2.0.0"
+  dependencies:
+    fast-base64-decode: ^1.0.0
+  peerDependencies:
+    react-native: ">=0.81"
+  checksum: 57e80fa836e61d5ff08d31cfb3df45c00a6616651b3f7521af2d4fd6456aefd05e17eb21a269d458ada0dd58bc8c25eef6b43097eefc542ab6186072f6b653a3
   languageName: node
   linkType: hard
 

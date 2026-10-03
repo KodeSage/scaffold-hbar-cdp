@@ -60,3 +60,12 @@ export const MIRROR_NODE = {
 export type HederaChainId = keyof typeof MIRROR_NODE;
 
 export const isHederaChainId = (chainId: number): chainId is HederaChainId => chainId in MIRROR_NODE;
+
+/**
+ * HCS topic that `yarn foundry:hcs` publishes the protocol history to: engine events plus oracle status changes.
+ * Set NEXT_PUBLIC_HCS_TOPIC_ID to the topic id it prints; the card is hidden until a topic is configured.
+ * The UI checks the topic memo names the connected engine, so a stale id shows a warning instead of wrong data.
+ */
+export const HCS_TOPIC_ID: Partial<Record<HederaChainId, string>> = {
+  296: process.env.NEXT_PUBLIC_HCS_TOPIC_ID || undefined,
+};

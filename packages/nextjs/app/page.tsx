@@ -4,6 +4,7 @@ import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { ActivityFeed } from "~~/components/cdp/ActivityFeed";
 import { CdpGate, StablecoinMissing } from "~~/components/cdp/CdpGate";
+import { HcsLog } from "~~/components/cdp/HcsLog";
 import { OracleCard } from "~~/components/cdp/OracleCard";
 import { ProtocolStats } from "~~/components/cdp/ProtocolStats";
 import { TokenSetupNotice } from "~~/components/cdp/TokenSetupNotice";
@@ -59,6 +60,7 @@ const Home: NextPage = () => (
             <ProtocolStats protocol={protocol} symbol={protocol.symbol || "stablecoin"} />
           </div>
           {protocol.symbol ? <AccountSection protocol={protocol} /> : <StablecoinMissing />}
+          <HcsLog protocol={protocol} />
         </>
       )}
     </CdpGate>

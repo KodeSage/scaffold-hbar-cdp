@@ -12,6 +12,7 @@
     "deploy": "node scripts-js/parseArgs.js",
     "flatten": "make flatten",
     "format": "make format",
+    "hcs": "node scripts-js/hcsLog.js",
     "lint": "make lint",
     "lint-staged": "yarn lint",
     "smoke": "node scripts-js/smoke.js",
@@ -23,6 +24,7 @@
     "postinstall": "shx cp -n .env.example .env"
   },
   "dependencies": {
+    "@hashgraph/sdk": "~2.81.0",
     "dotenv": "~16.3.1",
     "envfile": "~6.18.0",
     "ethers": "~5.7.1",

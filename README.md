@@ -29,6 +29,7 @@ The template ships wired to a **live, verified reference deployment on Hedera te
     - [Vault rules](#vault-rules)
     - [Oracle status machine](#oracle-status-machine)
     - [HTS token lifecycle](#hts-token-lifecycle)
+    - [HCS protocol log](#hcs-protocol-log)
   - [Hedera specifics you must know](#hedera-specifics-you-must-know)
   - [Commands](#commands)
   - [Configuration](#configuration)
@@ -59,6 +60,7 @@ A collateralised stablecoin is a common thing to build on a chain, and on Hedera
 | HBAR has 8 decimals in the EVM but 18 over JSON-RPC | Every value is labelled tinybar / weibar / stable units, and the TS math mirrors the Solidity math bit for bit |
 | Accounts must be *associated* with a token before receiving it | The UI reads association state from the mirror node and offers a one-click HIP-719 `associate()` |
 | `forge script` cannot simulate HTS calls | Deploy is split: Forge deploys the contracts, then a script creates the token over JSON-RPC, and the whole thing is still one command |
+| The oracle's status is computed in a view, so there is no on-chain record of when the protocol froze | `yarn foundry:hcs` publishes engine events **and every oracle status change** to a **Hedera Consensus Service** topic: an ordered, timestamped, publicly readable protocol log that only the relayer key can write to |
 
 Removing either piece breaks the product. Without the oracles there is no price, so no CDP. Without HTS there is no stablecoin.
 
@@ -180,6 +182,22 @@ Each feed is checked for: positive answer, non-zero timestamp, max age (Chainlin
 3. **Repay / liquidate.** The user approves the engine on the token's ERC-20 facade (HIP-376). The engine pulls with `transferFrom(token, user, engine, amount)` and burns from the treasury with `burnToken`.
 4. **Invariant.** SCD total supply = `totalDebt` = sum of vault debts, and the treasury never holds tokens between transactions. This is fuzzed in `HbarCdpEngine.invariant.t.sol`.
 
+### HCS protocol log
+
+Contract logs only record what a transaction did. They cannot record that the oracle went `Frozen` at 14:02 and recovered at 14:40, because `DualOracle` computes its status in a view and nothing is ever emitted. `yarn foundry:hcs` closes that gap with the Hedera Consensus Service:
+
+```bash
+yarn foundry:hcs               # create the topic on first run, backfill engine history, exit
+yarn foundry:hcs -- --watch    # keep relaying every 15s
+```
+
+1. **Topic.** On first run the script creates a topic whose memo names the engine (`HbarCdpEngine 0x… event log`) and whose **submit key** is your keystore's key. Anyone can read it; only the relayer can write to it.
+2. **Messages.** Each engine event (except `VaultUpdated`, which repeats the others) becomes one JSON message: `{"v":1,"type":"Liquidated","args":{…},"tx":"0x…","ts":"…"}`. Amounts stay in on-chain units as decimal strings. When `latestPrice()` changes status, it publishes `{"type":"OracleStatus","args":{"status":"Frozen","previous":"Ok","priceE18":"…"}}`.
+3. **Delivery.** The mirror-node cursor (timestamp plus log index, because logs in one transaction share a timestamp) is saved to `deployments/<chainId>-hcs.json` after every message, so a restart resumes where it stopped. A new engine deployment gets a new topic.
+4. **UI.** Set `NEXT_PUBLIC_HCS_TOPIC_ID` in `packages/nextjs/.env.local` and the dashboard shows a **Protocol log** card read from the mirror node, with oracle freezes and liquidations highlighted. If the topic memo names a different engine, the card warns instead of showing the wrong history.
+
+Contracts cannot submit HCS messages (there is no HCS system contract), so this runs off-chain with `@hashgraph/sdk`, using the same encrypted Foundry keystore as the other scripts (an ECDSA key works as an SDK operator key). Each message costs about $0.0001.
+
 ## Hedera specifics you must know
 
 These are the things that break naive EVM ports. Every one is handled in code, and the comments say where.
@@ -190,7 +208,8 @@ These are the things that break naive EVM ports. Every one is handled in code, a
 4. **`forge script` cannot run HTS calls.** Forge simulates in a local EVM with no `0x167`, so the HTS step runs over JSON-RPC (`createStablecoin.js`). Tests use [`hashgraph/hedera-forking`](https://github.com/hashgraph/hedera-forking) to emulate HTS offline.
 5. **Gas is charged on the limit.** Hedera charges at least 80% of the gas limit, so scripts use `eth_estimateGas` + 20% rather than large fixed limits.
 6. **Mirror-node topic queries need a time window.** `/contracts/{id}/results/logs?topic1=…` requires a `timestamp` range shorter than 7 days. The activity feed queries the last 7 days minus one minute.
-7. **No Multicall3 in viem's Hedera chain config.** The UI issues parallel `eth_call`s in one react-query snapshot instead of relying on multicall.
+7. **Contracts cannot write to HCS.** There is no HCS system contract, so the protocol log is relayed off-chain with the SDK (`scripts-js/hcsLog.js`) while HTS calls happen on-chain.
+8. **No Multicall3 in viem's Hedera chain config.** The UI issues parallel `eth_call`s in one react-query snapshot instead of relying on multicall.
 
 ## Commands
 
@@ -206,6 +225,7 @@ These are the things that break naive EVM ports. Every one is handled in code, a
 | `yarn foundry:deploy` | Deploy contracts, create the HTS token, export ABIs |
 | `yarn foundry:smoke` | Open and close a vault on testnet and print evidence links |
 | `yarn foundry:status` | Oracle health, parameters, totals, token |
+| `yarn foundry:hcs` | Publish engine events and oracle status changes to an HCS topic (`-- --watch` to keep running) |
 | `yarn lint` / `yarn format` | Lint / format both packages |
 
 Scripts that sign ask for the keystore and password interactively. For non-interactive use, set `ETH_PASSWORD` to a password *file*; this is the same convention `forge` and `cast` use.
@@ -227,14 +247,14 @@ Scripts that sign ask for the keystore and password interactively. For non-inter
 | `STABLECOIN_NAME` / `STABLECOIN_SYMBOL` | `Scaffold CDP Dollar` / `SCD` | Token metadata |
 | `STABLECOIN_CREATE_BUDGET_USD` | `2` | HBAR sent for the HTS fee, sized from the live price |
 
-Feed addresses live in `packages/foundry/script/Deploy.s.sol` (testnet and mainnet, from the Chainlink and Supra docs). The frontend reads `NEXT_PUBLIC_HEDERA_TESTNET_RPC_URL` and `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` from `packages/nextjs/.env.local` if set.
+Feed addresses live in `packages/foundry/script/Deploy.s.sol` (testnet and mainnet, from the Chainlink and Supra docs). The frontend reads `NEXT_PUBLIC_HEDERA_TESTNET_RPC_URL`, `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` and `NEXT_PUBLIC_HCS_TOPIC_ID` (printed by `yarn foundry:hcs`) from `packages/nextjs/.env.local` if set.
 
 ## Testing
 
 ```bash
 yarn foundry:test        # offline: 55 tests incl. 512-run fuzzing and an 8,192-call invariant campaign
 yarn foundry:test:fork   # live: DualOracle against the real Hedera testnet feeds
-yarn next:test           # 18 frontend tests; same vectors as the Solidity tests
+yarn next:test           # 22 frontend tests; same vectors as the Solidity tests, plus HCS message parsing
 ```
 
 - `DualOracle.t.sol` covers every status transition, inclusive freshness bounds, deviation in both directions, reverting feeds, feeds without code, malformed return data, decimals from 0 to 36, overflow, and a fuzz test that `latestPrice()` never reverts.
@@ -252,14 +272,14 @@ packages/
 │   │   ├── oracle/DualOracle.sol      # Chainlink primary + Supra cross-check
 │   │   └── interfaces/                # IHederaTokenService (subset), IAggregatorV3, ISupraSValueFeed, IPriceOracle
 │   ├── script/Deploy.s.sol            # per-network feed config, env-driven risk params
-│   ├── scripts-js/                    # createStablecoin, smoke, status, keystore + ABI tooling
+│   ├── scripts-js/                    # createStablecoin, smoke, status, hcsLog (HCS relayer), keystore + ABI tooling
 │   └── test/                          # unit, fuzz, invariant, fork
 └── nextjs/
     ├── app/page.tsx                   # vault dashboard
     ├── app/liquidations/page.tsx      # liquidation board
-    ├── components/cdp/                # OracleCard, VaultSummary, VaultActions, LiquidationsTable, …
+    ├── components/cdp/                # OracleCard, VaultSummary, VaultActions, LiquidationsTable, HcsLog, …
     ├── hooks/cdp/                     # useProtocol / useAccountState (reads), useCdpActions (writes)
-    └── utils/cdp/                     # math (mirrors Solidity), format, mirror node client
+    └── utils/cdp/                     # math (mirrors Solidity), format, mirror node client (logs, HCS topic)
 ```
 
 ## Extending the template
