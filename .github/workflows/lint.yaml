@@ -19,6 +19,8 @@ jobs:
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: v1.5.1 # pinned: reproducible CI instead of whatever "stable" is today
 
       - name: Setup node env
         uses: actions/setup-node@v4
@@ -35,7 +37,11 @@ jobs:
       - name: Unit, fuzz and invariant tests (HTS emulated by hedera-forking)
         run: yarn foundry:test
 
-      - name: Fork tests against live Chainlink + Supra feeds on Hedera testnet
+      # Reads the real feeds through the public Hashio relay. That endpoint is rate-limited and sits behind
+      # Cloudflare, so it can reject CI runners for reasons unrelated to this code. The result stays visible
+      # in the run, but only the offline suite above (HTS emulated) gates the build.
+      - name: Fork tests against live Chainlink + Supra feeds on Hedera testnet (non-blocking)
+        continue-on-error: true
         run: yarn foundry:test:fork
 
   frontend:
