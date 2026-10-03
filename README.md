@@ -20,6 +20,7 @@ The template ships wired to a **live, verified reference deployment on Hedera te
 
 - [Scaffold-HBAR — HBAR CDP Stablecoin](#scaffold-hbar--hbar-cdp-stablecoin)
   - [Contents](#contents)
+  - [Demo video](#demo-video)
   - [Why this template exists](#why-this-template-exists)
   - [Live testnet deployment \& evidence](#live-testnet-deployment--evidence)
   - [Quick start](#quick-start)
@@ -42,6 +43,12 @@ The template ships wired to a **live, verified reference deployment on Hedera te
   - [License](#license)
 
 ---
+
+## Demo video
+
+[![HBAR CDP demo: dual oracle, opening a vault, the native HTS token and the test suite (27s, narrated)](docs/demo-poster.jpg)](hbar_cdp.mp4)
+
+A 27-second narrated tour: the Chainlink + Supra oracle and its freeze rule, opening a vault with the liquidation-price preview, the HTS token the engine fully controls, and the 55-test suite. Click the image to play [`hbar_cdp.mp4`](hbar_cdp.mp4).
 
 ## Why this template exists
 
