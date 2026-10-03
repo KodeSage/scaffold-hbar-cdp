@@ -2,8 +2,6 @@
 
 Lock HBAR, mint a USD stablecoin issued on the **Hedera Token Service**, repay to unlock, and let anyone liquidate unsafe vaults. Prices come from **Chainlink** (primary) and are cross-checked against **Supra**. If the two disagree, the protocol stops taking new risk on its own.
 
-![alt text](<Screenshot 2026-10-03 at 01.44.44.png>)
-
 ```bash
 npm create scaffold-hbar@latest -- --template KodeSage/scaffold-hbar-cdp
 ```
