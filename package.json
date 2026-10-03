@@ -1,0 +1,53 @@
+{
+  "name": "sh",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/foundry",
+      "packages/nextjs"
+    ]
+  },
+  "scripts": {
+    "foundry:account": "yarn workspace @sh/foundry account",
+    "foundry:account:generate": "yarn workspace @sh/foundry account:generate",
+    "foundry:account:import": "yarn workspace @sh/foundry account:import",
+    "foundry:account:reveal-pk": "yarn workspace @sh/foundry account:reveal-pk",
+    "foundry:clean": "yarn workspace @sh/foundry clean",
+    "foundry:compile": "yarn workspace @sh/foundry compile",
+    "foundry:deploy": "yarn workspace @sh/foundry deploy",
+    "foundry:flatten": "yarn workspace @sh/foundry flatten",
+    "foundry:format": "yarn workspace @sh/foundry format",
+    "foundry:lint": "yarn workspace @sh/foundry lint",
+    "foundry:lint-staged": "yarn workspace @sh/foundry lint-staged",
+    "foundry:smoke": "yarn workspace @sh/foundry smoke",
+    "foundry:status": "yarn workspace @sh/foundry status",
+    "foundry:test": "yarn workspace @sh/foundry test",
+    "foundry:test:fork": "yarn workspace @sh/foundry test:fork",
+    "foundry:verify:testnet": "yarn workspace @sh/foundry verify:testnet",
+    "format": "yarn next:format && yarn foundry:format",
+    "lint": "yarn next:lint && yarn foundry:lint",
+    "next:build": "yarn workspace @sh/nextjs build",
+    "next:check-types": "yarn workspace @sh/nextjs check-types",
+    "next:dev": "yarn workspace @sh/nextjs dev",
+    "next:format": "yarn workspace @sh/nextjs format",
+    "next:lint": "yarn workspace @sh/nextjs lint",
+    "next:serve": "yarn workspace @sh/nextjs serve",
+    "next:start": "yarn workspace @sh/nextjs start",
+    "next:test": "yarn workspace @sh/nextjs test",
+    "postinstall": "husky",
+    "precommit": "lint-staged",
+    "lint-staged": "lint-staged"
+  },
+  "packageManager": "yarn@3.2.3",
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10"
+  },
+  "engines": {
+    "node": ">=20.18.3"
+  },
+  "overrides": {
+    "@coinbase/cdp-sdk": "1.44.1"
+  }
+}

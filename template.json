@@ -1,0 +1,65 @@
+{
+  "name": "hbar-cdp-stablecoin",
+  "description": "HBAR-collateralised stablecoin: an HTS token minted by a CDP engine, priced by Chainlink and cross-checked by Supra, with liquidations, a Next.js vault UI and mirror-node activity.",
+  "version": "1.0.0",
+  "create-scaffold-hbar": {
+    "requirements": {
+      "node": ">=20.18.3",
+      "forge": ">=1.0.0"
+    },
+    "capabilities": {
+      "frontend": ["nextjs-app"],
+      "solidityFramework": ["foundry"],
+      "packageManager": ["yarn", "npm"]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "foundry",
+      "packageManager": "yarn"
+    },
+    "outro": {
+      "sections": [
+        {
+          "title": "Try it now (no deploy needed)",
+          "steps": [
+            {
+              "label": "Start the vault UI against the reference testnet deployment",
+              "command": "{run:next:dev}"
+            },
+            {
+              "text": "Open http://localhost:3000, connect MetaMask on Hedera Testnet, deposit HBAR and mint the stablecoin."
+            }
+          ]
+        },
+        {
+          "title": "Deploy your own",
+          "steps": [
+            {
+              "label": "Run the contract test suite (HTS emulated locally)",
+              "command": "{run:foundry:test}"
+            },
+            {
+              "label": "Generate a deployer keystore",
+              "command": "{run:foundry:account:generate}"
+            },
+            {
+              "label": "Fund it with testnet HBAR (~30 HBAR covers deploy, token creation and the smoke test)",
+              "url": "https://portal.hedera.com/faucet"
+            },
+            {
+              "label": "Deploy oracle + engine, create the HTS stablecoin, export ABIs",
+              "command": "{run:foundry:deploy}"
+            },
+            {
+              "label": "Produce verifiable testnet transactions (HashScan + mirror node links)",
+              "command": "{run:foundry:smoke}"
+            },
+            {
+              "text": "README.md walks through every step; AGENTS.md briefs AI coding agents on units, HTS rules and invariants."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

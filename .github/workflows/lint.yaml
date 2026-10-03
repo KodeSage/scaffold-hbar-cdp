@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Setup node env
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Lint (forge fmt + prettier)
+        run: yarn foundry:lint
+
+      - name: Unit, fuzz and invariant tests (HTS emulated by hedera-forking)
+        run: yarn foundry:test
+
+      - name: Fork tests against live Chainlink + Supra feeds on Hedera testnet
+        run: yarn foundry:test:fork
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node env
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Lint
+        run: yarn next:lint --max-warnings=0
+
+      - name: Check types
+        run: yarn next:check-types
+
+      - name: Unit tests
+        run: yarn next:test
+
+      - name: Build
+        run: yarn next:build
